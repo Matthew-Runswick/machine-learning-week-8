@@ -41,20 +41,20 @@ def convolve(input_array, kernel):
     return output_array
 
 #Part B
-# from PIL import Image
-# im = Image.open('triangle.png')
-# rgb = np.array(im.convert('RGB'))
-# test = rgb[:, :, 0]
-# Image.fromarray(np.uint8(test)).show()
+from PIL import Image
+im = Image.open('triangle.png')
+rgb = np.array(im.convert('RGB'))
+test = rgb[:, :, 0]
+Image.fromarray(np.uint8(test)).show()
 
-# kernel1 = [[-1,-1,-1], [-1,8,-1], [-1,-1,-1]]
-# kernel2 = [[0,-1,0], [-1,8,-1], [0,-1,0]]
+kernel1 = [[-1,-1,-1], [-1,8,-1], [-1,-1,-1]]
+kernel2 = [[0,-1,0], [-1,8,-1], [0,-1,0]]
 
-# kernel1_result = convolve(test, kernel1)
-# kernel2_result = convolve(test, kernel2)
+kernel1_result = convolve(test, kernel1)
+kernel2_result = convolve(test, kernel2)
 
-# Image.fromarray(np.uint8(kernel1_result)).show()
-# Image.fromarray(np.uint8(kernel2_result)).show()
+Image.fromarray(np.uint8(kernel1_result)).show()
+Image.fromarray(np.uint8(kernel2_result)).show()
 
 #Part (ii)  (imported code)
 #Part B
@@ -96,34 +96,38 @@ def conv_model_training(x_train, y_train, x_test, y_test, title, penalty, archit
     if use_saved_model:
         model = keras.models.load_model("cifar.model")
     else:
-        # if(architecture_type == "stride"):
-        model = keras.Sequential()
-        model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
-        model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
-        model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
-        model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Flatten())
-        model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(penalty)))
-        model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-        model.summary()
+        if(architecture_type == "stride"):
+            model = keras.Sequential()
+            model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
+            model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
+            model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
+            model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
+            model.add(Dropout(0.5))
+            model.add(Flatten())
+            model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(penalty)))
+            model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+            model.summary()
 
-        # else:
-        #     model = keras.Sequential()
-        #     model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
-        #     model.add(MaxPooling2D(pool_size=(2, 2)))
-        #     model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
-        #     model.add(MaxPooling2D(pool_size=(2, 2)))
-        #     model.add(Dropout(0.5))
-        #     model.add(Flatten())
-        #     model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(penalty)))
-        #     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
-        #     model.summary()
+        else:
+            model = keras.Sequential()
+            model.add(Conv2D(16, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+            model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+            model.add(Dropout(0.5))
+            model.add(Flatten())
+            model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(penalty)))
+            model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+            model.summary()
 
         batch_size = 128
         epochs = 20
         history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
         model.save("cifar.model")
+
+        end = time.time()
+        print("!!!!!!!!!!!! time to complete training", round(end - start), "s  !!!!!!!!!!!!!!!!!!!!!!!!!")
+
         plt.figure()
         plt.plot(history.history['accuracy'])
         plt.plot(history.history['val_accuracy'])
@@ -151,8 +155,7 @@ def conv_model_training(x_train, y_train, x_test, y_test, title, penalty, archit
     print(classification_report(y_test1, y_pred))
     print(confusion_matrix(y_test1,y_pred))
 
-    end = time.time()
-    print("!!!!!!!!!!!! time to complete training", round(end - start), "s  !!!!!!!!!!!!!!!!!!!!!!!!!")
+    
 
 # x_train, y_train, x_test, y_test = prep_data(5000)
 # conv_model_training(x_train, y_train, x_test, y_test, "5K", 0.0001, "stride")
@@ -177,9 +180,70 @@ x_train, y_train, x_test, y_test = prep_data(5000)
 # conv_model_training(x_train, y_train, x_test, y_test, "5K L=0.01 ", 0.01, "stride")
 # conv_model_training(x_train, y_train, x_test, y_test, "5K L=1 ", 1, "stride")
 
-#Part C (i)
+#Part C (i) and (ii)
+# conv_model_training(x_train, y_train, x_test, y_test, "5K max Pooling", 0.0001, "maxPooling")
+
+
+#part D (optional)
+# (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
+# x_train = x_train.astype("float32") / 255
+# x_test = x_test.astype("float32") / 255
+# y_train = keras.utils.to_categorical(y_train, num_classes)
+# y_test = keras.utils.to_categorical(y_test, num_classes)
+
+# start = time.time()
+# use_saved_model = False
+# if use_saved_model:
+#     model = keras.models.load_model("cifar.model")
+# else:
+#     model = keras.Sequential()
+#     model.add(Conv2D(8, (3,3), padding='same', input_shape=x_train.shape[1:],activation='relu'))
+#     model.add(Conv2D(8, (3,3), strides=(2,2), padding='same', activation='relu'))
+#     model.add(Conv2D(16, (3,3), padding='same', activation='relu'))
+#     model.add(Conv2D(16, (3,3), strides=(2,2), padding='same', activation='relu'))
+#     model.add(Conv2D(32, (3,3), padding='same', activation='relu'))
+#     model.add(Conv2D(32, (3,3), strides=(2,2), padding='same', activation='relu'))
+#     model.add(Dropout(0.5))
+#     model.add(Flatten())
+#     model.add(Dense(num_classes, activation='softmax',kernel_regularizer=regularizers.l1(0.0001)))
+#     model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=["accuracy"])
+#     model.summary()
+
+#     batch_size = 128
+#     epochs = 20
+#     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
+#     model.save("cifar.model")
+
+#     end = time.time()
+#     print("!!!!!!!!!!!! time to complete training", round(end - start), "s  !!!!!!!!!!!!!!!!!!!!!!!!!")
+
+#     plt.figure()
+#     plt.plot(history.history['accuracy'])
+#     plt.plot(history.history['val_accuracy'])
+#     plt.title('deeper and wider model - model accuracy')
+#     plt.ylabel('accuracy')
+#     plt.xlabel('epoch')
+#     plt.legend(['train', 'val'], loc='upper left')
+#     plt.figure()
+#     plt.plot(history.history['loss'])
+#     plt.plot(history.history['val_loss'])
+#     plt.title('deeper and wider model - model loss')
+#     plt.ylabel('loss'); plt.xlabel('epoch')
+#     plt.legend(['train', 'val'], loc='upper left')
+#     plt.show()
+
+# preds = model.predict(x_train)
+# y_pred = np.argmax(preds, axis=1)
+# y_train1 = np.argmax(y_train, axis=1)
+# print(classification_report(y_train1, y_pred))
+# print(confusion_matrix(y_train1,y_pred))
+
+# preds = model.predict(x_test)
+# y_pred = np.argmax(preds, axis=1)
+# y_test1 = np.argmax(y_test, axis=1)
+# print(classification_report(y_test1, y_pred))
+# print(confusion_matrix(y_test1,y_pred))
 
 
 
-
-#dont forget to uncomment all code before submitting
+#dont forget to uncomment all code before submitting ********************************************

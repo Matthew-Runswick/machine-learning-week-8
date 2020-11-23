@@ -24,7 +24,6 @@ def return_array_section(array, starting_position, size):
 def convolve(input_array, kernel):
     input_array_size = [len(input_array), len(input_array[0])]
     kernel_size = [len(kernel), len(kernel[0])]
-    print("input ", input_array_size, "kernel", kernel_size)
     output_array = []
     current_position = [0, 0]
     for a in range(0, (input_array_size[0]-kernel_size[0])+1):
@@ -46,10 +45,17 @@ def convolve(input_array, kernel):
 # print("convolution result", result)
 
 #Part B
-# from PIL import Image
-# im = Image.open('triangle.png')
-# rgb = np.array(im.convert('RGB'))
-# test = rgb[:, :, 0]
-# Image.fromarray(np.uint8(test)).show()
+from PIL import Image
+im = Image.open('triangle.png')
+rgb = np.array(im.convert('RGB'))
+test = rgb[:, :, 0]
+Image.fromarray(np.uint8(test)).show()
 
-# kernel1_result = 
+kernel1 = [[-1,-1,-1], [-1,8,-1], [-1,-1,-1]]
+kernel2 = [[0,-1,0], [-1,8,-1], [0,-1,0]]
+
+kernel1_result = convolve(test, kernel1)
+kernel2_result = convolve(test, kernel2)
+
+Image.fromarray(np.uint8(kernel1_result)).show()
+Image.fromarray(np.uint8(kernel2_result)).show()

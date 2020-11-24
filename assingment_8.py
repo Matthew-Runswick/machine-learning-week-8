@@ -210,7 +210,7 @@ else:
     model.summary()
 
     batch_size = 128
-    epochs = 20
+    epochs = 40
     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, validation_split=0.1)
     model.save("cifar.model")
 
